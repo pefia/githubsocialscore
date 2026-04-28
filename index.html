@@ -1,47 +1,881 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Social Score</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
-        h1 { text-align: center; }
-        input[type='text'] { width: 100%; padding: 10px; margin: 10px 0; }
-        button { padding: 10px; width: 100%; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        .result { margin-top: 20px; text-align: center; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Social Score</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #21262d;
+      --border-color: #30363d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --accent-blue: #58a6ff;
+      --accent-red: #f85149;
+      --accent-yellow: #d29922;
+      --accent-green: #3fb950;
+      --glass-alpha: 0.1;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 300;
+    }
+
+    /* Glassmorphism Card */
+    .card {
+      background: rgba(30, 30, 30, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: var(--accent-blue);
+      background: rgba(30, 30, 30, 0.7);
+    }
+
+    /* Search Section */
+    .search-section {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 0.875rem 1.25rem;
+      background: rgba(30, 30, 30, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      background: rgba(30, 30, 30, 1);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .search-btn {
+      padding: 0.875rem 2rem;
+      background: linear-gradient(135deg, var(--accent-blue), #1f6feb);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(88, 166, 255, 0.3);
+    }
+
+    .search-btn:active {
+      transform: translateY(0);
+    }
+
+    .search-btn.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .search-btn.loading::after {
+      content: '';
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      margin-left: 0.5rem;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Profile Section */
+    .profile-section {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 2rem;
+      align-items: start;
+      margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 16px;
+      border: 2px solid var(--border-color);
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      flex-shrink: 0;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .profile-info h2 {
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .profile-info p {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      animation: fadeIn 0.5s ease 0.1s backwards;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      animation: fadeIn 0.5s ease 0.2s backwards;
+    }
+
+    .stat-item {
+      background: rgba(88, 166, 255, 0.05);
+      border: 1px solid rgba(88, 166, 255, 0.2);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+
+    /* Score Section */
+    .score-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .score-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin-bottom: 2rem;
+      animation: fadeIn 0.5s ease 0.3s backwards;
+    }
+
+    .score-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4));
+    }
+
+    .score-bg {
+      fill: none;
+      stroke: var(--border-color);
+      stroke-width: 12;
+    }
+
+    .score-fill {
+      fill: none;
+      stroke: url(#scoreGradient);
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-dasharray: 667;
+      stroke-dashoffset: 667;
+      transition: stroke-dashoffset 2s ease-out;
+    }
+
+    .score-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      animation: fadeIn 0.5s ease 0.4s backwards;
+    }
+
+    .score-value {
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .score-label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+      animation: fadeIn 0.5s ease 0.5s backwards;
+    }
+
+    .stat-card {
+      background: rgba(30, 30, 30, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent-blue);
+      background: rgba(30, 30, 30, 0.7);
+    }
+
+    .stat-card-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card-label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    /* Error State */
+    .error-message {
+      background: rgba(248, 81, 73, 0.1);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      color: #f85149;
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* Loading State */
+    .loading-skeleton {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .skeleton-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 16px;
+      background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Hidden State */
+    .hidden {
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .search-section {
+        flex-direction: column;
+      }
+
+      .profile-section {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .profile-avatar {
+        margin: 0 auto;
+      }
+
+      .profile-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .score-container {
+        width: 240px;
+        height: 240px;
+      }
+
+      .score-value {
+        font-size: 2.5rem;
+      }
+
+      .card {
+        padding: 1.5rem;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Utility */
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>GitHub Social Score</h1>
-        <input type="text" id="username" placeholder="Enter GitHub Username" />
-        <button id="getScore">Get Social Score</button>
-        <div class="result" id="result"></div>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>GitHub Social Score</h1>
+      <p>Measure your GitHub impact</p>
     </div>
 
-    <script>
-        document.getElementById('getScore').addEventListener('click', function() {
-            const username = document.getElementById('username').value;
-            const url = `https://api.github.com/users/${username}`;
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('User not found');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const { followers, public_repos, public_gists } = data;
-                    const score = followers + public_repos + public_gists;
-                    document.getElementById('result').innerHTML = `<h2>${username}'s Social Score: ${score}</h2>`;
-                })
-                .catch(error => {
-                    document.getElementById('result').innerHTML = `<h2 style='color:red;'>${error.message}</h2>`;
-                });
-        });
-    </script>
+    <!-- Search Section -->
+    <div class="search-section">
+      <input
+        type="text"
+        id="usernameInput"
+        class="search-input"
+        placeholder="Enter GitHub username"
+        autocomplete="off"
+      >
+      <button id="searchBtn" class="search-btn">Search</button>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="error-message hidden"></div>
+
+    <!-- Profile Section -->
+    <div id="profileCard" class="card hidden">
+      <div class="profile-section">
+        <div class="profile-avatar" id="profileAvatar">👤</div>
+        <div class="profile-info">
+          <h2 id="profileUsername"></h2>
+          <p id="profileBio"></p>
+          <div class="profile-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="profileFollowers">0</div>
+              <div class="stat-label">Followers</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="profilePublicRepos">0</div>
+              <div class="stat-label">Public Repos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Score Section -->
+    <div id="scoreCard" class="card hidden">
+      <div class="score-section">
+        <div class="score-container">
+          <svg class="score-svg" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" id="gradientStart" stop-color="#3fb950" />
+                <stop offset="100%" id="gradientEnd" stop-color="#58a6ff" />
+              </linearGradient>
+            </defs>
+            <circle class="score-bg" cx="100" cy="100" r="90" />
+            <circle class="score-fill" cx="100" cy="100" r="90" />
+          </svg>
+          <div class="score-text">
+            <div class="score-value" id="scoreValue">0</div>
+            <div class="score-label">Score</div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-value" id="statRepoQuality">0.0</div>
+            <div class="stat-card-label">Repo Quality</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="statImpact">0.0</div>
+            <div class="stat-card-label">Impact</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="statActivity">0.0</div>
+            <div class="stat-card-label">Activity</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="statConsistency">0.0</div>
+            <div class="stat-card-label">Consistency</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="statScale">0.0</div>
+            <div class="stat-card-label">Scale</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="totalStars">0</div>
+            <div class="stat-card-label">Total Stars</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================================
+    // GITHUB SOCIAL SCORE - COMPLETE CLIENT-SIDE APPLICATION
+    // ============================================================================
+
+    const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+    const API_BASE = 'https://api.github.com';
+
+    // DOM Elements
+    const usernameInput = document.getElementById('usernameInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const profileCard = document.getElementById('profileCard');
+    const scoreCard = document.getElementById('scoreCard');
+
+    // Event Listeners
+    searchBtn.addEventListener('click', handleSearch);
+    usernameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleSearch();
+    });
+
+    // Check URL parameters on load
+    window.addEventListener('load', () => {
+      const params = new URLSearchParams(window.location.search);
+      const username = params.get('user');
+      if (username) {
+        usernameInput.value = username;
+        handleSearch();
+      }
+    });
+
+    // ============================================================================
+    // SEARCH & FETCH
+    // ============================================================================
+
+    async function handleSearch() {
+      const username = usernameInput.value.trim();
+      if (!username) return;
+
+      hideError();
+      setLoading(true);
+
+      try {
+        const userData = await fetchGitHubUser(username);
+        const reposData = await fetchGitHubRepos(username);
+
+        if (!userData || !reposData) return;
+
+        const score = calculateScore(userData, reposData);
+        displayResults(userData, reposData, score);
+
+        // Update URL
+        window.history.pushState(null, '', `?user=${username}`);
+      } catch (error) {
+        showError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function fetchGitHubUser(username) {
+      const cacheKey = `github_user_${username}`;
+      const cached = getCache(cacheKey);
+
+      if (cached) return cached;
+
+      try {
+        const response = await fetch(`${API_BASE}/users/${username}`);
+
+        if (response.status === 404) {
+          throw new Error('User not found');
+        }
+
+        if (response.status === 403) {
+          throw new Error('Rate limit exceeded. Please try again later.');
+        }
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+
+        const data = await response.json();
+        setCache(cacheKey, data);
+        return data;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    async function fetchGitHubRepos(username) {
+      const cacheKey = `github_repos_${username}`;
+      const cached = getCache(cacheKey);
+
+      if (cached) return cached;
+
+      try {
+        const response = await fetch(
+          `${API_BASE}/users/${username}/repos?per_page=100&sort=updated&direction=desc`
+        );
+
+        if (response.status === 403) {
+          throw new Error('Rate limit exceeded. Please try again later.');
+        }
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch repositories');
+        }
+
+        const data = await response.json();
+        setCache(cacheKey, data);
+        return data;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    // ============================================================================
+    // SCORING SYSTEM
+    // ============================================================================
+
+    function calculateScore(userData, reposData) {
+      const nonForkRepos = reposData.filter(repo => !repo.fork);
+      const n = nonForkRepos.length || 1;
+
+      // 1. Repository Quality (R)
+      const R = calculateRepositoryQuality(nonForkRepos);
+
+      // 2. Impact Score (I)
+      const I = calculateImpactScore(nonForkRepos);
+
+      // 3. Activity Score (A)
+      const A = calculateActivityScore(nonForkRepos);
+
+      // 4. Consistency Score (C)
+      const C = calculateConsistencyScore(nonForkRepos);
+
+      // 5. Scale Score (Sc)
+      const Sc = calculateScaleScore(n);
+
+      // Final Score: S = 100 · min(1, 0.25R + 0.25I + 0.20A + 0.15C + 0.15Sc)
+      const finalScore = 100 * Math.min(1, 0.25 * R + 0.25 * I + 0.20 * A + 0.15 * C + 0.15 * Sc);
+
+      return {
+        final: Math.round(finalScore),
+        R: parseFloat((R * 100).toFixed(1)),
+        I: parseFloat((I * 100).toFixed(1)),
+        A: parseFloat((A * 100).toFixed(1)),
+        C: parseFloat((C * 100).toFixed(1)),
+        Sc: parseFloat((Sc * 100).toFixed(1)),
+        totalStars: reposData.reduce((sum, repo) => sum + repo.stargazers_count, 0),
+        repoCount: nonForkRepos.length,
+      };
+    }
+
+    function calculateRepositoryQuality(repos) {
+      if (repos.length === 0) return 0;
+
+      const n = repos.length;
+      const S_max = 100000;
+      const alpha = 0.08;
+
+      const totalStars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+      const logNormalized = Math.log(1 + totalStars) / Math.log(1 + S_max);
+      const saturationFactor = 1 - Math.exp(-alpha * n);
+
+      return logNormalized * saturationFactor;
+    }
+
+    function calculateImpactScore(repos) {
+      if (repos.length === 0) return 0;
+
+      const n = repos.length;
+      const S_max = 100000;
+
+      const impactfulRepos = repos.filter(repo => repo.stargazers_count > 50);
+      if (impactfulRepos.length === 0) return 0;
+
+      const sum = impactfulRepos.reduce((acc, repo) => {
+        return acc + Math.log(1 + repo.stargazers_count) / Math.log(1 + S_max);
+      }, 0);
+
+      return sum / n;
+    }
+
+    function calculateActivityScore(repos) {
+      if (repos.length === 0) return 0;
+
+      const n = repos.length;
+      const now = Date.now();
+      const lambda = 1 / (90 * 24 * 60 * 60 * 1000); // 90 days in milliseconds
+
+      const sum = repos.reduce((acc, repo) => {
+        const lastUpdated = new Date(repo.updated_at).getTime();
+        const timeDiff = now - lastUpdated;
+        return acc + Math.exp(-lambda * timeDiff);
+      }, 0);
+
+      return sum / n;
+    }
+
+    function calculateConsistencyScore(repos) {
+      if (repos.length < 2) return 1;
+
+      const n = repos.length;
+      const now = Date.now();
+
+      // Get timestamps of all updates
+      const timestamps = repos
+        .map(repo => new Date(repo.updated_at).getTime())
+        .sort((a, b) => b - a);
+
+      // Calculate time gaps between consecutive updates
+      const gaps = [];
+      for (let i = 0; i < timestamps.length - 1; i++) {
+        gaps.push(timestamps[i] - timestamps[i + 1]);
+      }
+
+      if (gaps.length === 0) return 1;
+
+      // Calculate mean
+      const mean = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+
+      // Calculate standard deviation
+      const variance = gaps.reduce((sum, gap) => sum + Math.pow(gap - mean, 2), 0) / gaps.length;
+      const sigma = Math.sqrt(variance);
+
+      if (sigma === 0) return 1;
+
+      // C = (1/σ) / ((1/σ) + 1)
+      const consistency = (1 / sigma) / ((1 / sigma) + 1);
+      return Math.min(consistency, 1);
+    }
+
+    function calculateScaleScore(n) {
+      const N_max = 500;
+      return Math.log(1 + n) / Math.log(1 + N_max);
+    }
+
+    // ============================================================================
+    // DISPLAY RESULTS
+    // ============================================================================
+
+    function displayResults(userData, reposData, score) {
+      // Profile
+      document.getElementById('profileUsername').textContent = userData.login;
+      document.getElementById('profileBio').textContent = userData.bio || 'No bio';
+      document.getElementById('profileFollowers').textContent = formatNumber(userData.followers);
+      document.getElementById('profilePublicRepos').textContent = userData.public_repos;
+
+      // Avatar
+      const avatar = document.getElementById('profileAvatar');
+      if (userData.avatar_url) {
+        avatar.style.backgroundImage = `url(${userData.avatar_url})`;
+        avatar.style.backgroundSize = 'cover';
+        avatar.style.backgroundPosition = 'center';
+        avatar.textContent = '';
+      }
+
+      // Score visualization
+      displayScore(score.final);
+
+      // Stats
+      document.getElementById('statRepoQuality').textContent = score.R.toFixed(1);
+      document.getElementById('statImpact').textContent = score.I.toFixed(1);
+      document.getElementById('statActivity').textContent = score.A.toFixed(1);
+      document.getElementById('statConsistency').textContent = score.C.toFixed(1);
+      document.getElementById('statScale').textContent = score.Sc.toFixed(1);
+      document.getElementById('totalStars').textContent = formatNumber(score.totalStars);
+
+      // Show cards
+      profileCard.classList.remove('hidden');
+      scoreCard.classList.remove('hidden');
+    }
+
+    function displayScore(scoreValue) {
+      const scoreEl = document.getElementById('scoreValue');
+      const circle = document.querySelector('.score-fill');
+      const circumference = 2 * Math.PI * 90;
+
+      // Animate score value
+      animateValue(scoreEl, 0, scoreValue, 2000);
+
+      // Animate circle
+      const offset = circumference * (1 - scoreValue / 100);
+      setTimeout(() => {
+        circle.style.strokeDashoffset = offset;
+      }, 100);
+
+      // Update gradient colors based on score
+      const startColor = getScoreColor(scoreValue, true);
+      const endColor = getScoreColor(scoreValue, false);
+
+      document.getElementById('gradientStart').setAttribute('stop-color', startColor);
+      document.getElementById('gradientEnd').setAttribute('stop-color', endColor);
+
+      // Update score value color
+      scoreEl.style.color = getScoreColor(scoreValue);
+    }
+
+    function getScoreColor(score, isStart = false) {
+      if (score >= 70) {
+        return isStart ? '#3fb950' : '#58a6ff';
+      } else if (score >= 40) {
+        return isStart ? '#d29922' : '#f85149';
+      } else {
+        return '#f85149';
+      }
+    }
+
+    function animateValue(element, start, end, duration) {
+      const range = end - start;
+      const increment = end > start ? 1 : -1;
+      let current = start;
+      const stepTime = Math.abs(Math.floor(duration / range));
+
+      const interval = setInterval(() => {
+        current += increment;
+        element.textContent = current;
+        if (current === end) clearInterval(interval);
+      }, stepTime);
+    }
+
+    // ============================================================================
+    // UI HELPERS
+    // ============================================================================
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        searchBtn.classList.add('loading');
+        searchBtn.disabled = true;
+      } else {
+        searchBtn.classList.remove('loading');
+        searchBtn.disabled = false;
+      }
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.remove('hidden');
+      profileCard.classList.add('hidden');
+      scoreCard.classList.add('hidden');
+    }
+
+    function hideError() {
+      errorMessage.classList.add('hidden');
+    }
+
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    // ============================================================================
+    // CACHE MANAGEMENT
+    // ============================================================================
+
+    function setCache(key, data) {
+      localStorage.setItem(key, JSON.stringify({
+        data,
+        timestamp: Date.now(),
+      }));
+    }
+
+    function getCache(key) {
+      const cached = localStorage.getItem(key);
+      if (!cached) return null;
+
+      const { data, timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp > CACHE_DURATION) {
+        localStorage.removeItem(key);
+        return null;
+      }
+
+      return data;
+    }
+  </script>
 </body>
 </html>
