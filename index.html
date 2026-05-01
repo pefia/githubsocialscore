@@ -405,6 +405,7 @@
       display: none !important;
     }
   </style>
+  <script src="src/themes.js"></script>
 </head>
 <body>
   <div class="container">
@@ -522,14 +523,70 @@
     });
 
     // Check URL parameters on load
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
       const params = new URLSearchParams(window.location.search);
       const username = params.get('user');
+      const wasSvgRendered = await maybeRenderSvgFromQuery();
+      if (wasSvgRendered) return;
       if (username) {
         usernameInput.value = username;
         handleSearch();
       }
     });
+
+
+    function getValidatedColor(value) {
+      if (!value) return null;
+      const normalized = value.trim();
+      return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(normalized) ? normalized : null;
+    }
+
+    function getSvgThemeTokens(params) {
+      const requestedTheme = (params.get('theme') || 'auto').toLowerCase();
+      const baseTheme = window.SVG_THEMES?.[requestedTheme] || window.SVG_THEMES.auto;
+
+      return {
+        background: getValidatedColor(params.get('bg')) || baseTheme.background,
+        text: getValidatedColor(params.get('text')) || baseTheme.text,
+        accent: getValidatedColor(params.get('accent')) || baseTheme.accent,
+        border: baseTheme.border,
+      };
+    }
+
+    function renderScoreSvg(username, score, tokens) {
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="160" viewBox="0 0 420 160" role="img" aria-label="GitHub Social Score for ${username}">
+  <rect x="1" y="1" width="418" height="158" rx="14" fill="${tokens.background}" stroke="${tokens.border}" stroke-width="2"/>
+  <text x="24" y="45" fill="${tokens.text}" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="20" font-weight="700">GitHub Social Score</text>
+  <text x="24" y="74" fill="${tokens.text}" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="16">@${username}</text>
+  <text x="24" y="122" fill="${tokens.accent}" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="48" font-weight="800">${score}</text>
+  <text x="132" y="122" fill="${tokens.text}" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" font-size="20">/100</text>
+</svg>`;
+    }
+
+    async function maybeRenderSvgFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const username = params.get('user');
+      const mode = (params.get('format') || '').toLowerCase();
+
+      if (!username || mode !== 'svg') return false;
+
+      try {
+        const userData = await fetchGitHubUser(username);
+        const reposData = await fetchGitHubRepos(username);
+        const score = calculateScore(userData, reposData);
+        const tokens = getSvgThemeTokens(params);
+        const svg = renderScoreSvg(username, score.final, tokens);
+
+        document.open();
+        document.write(svg);
+        document.close();
+        return true;
+      } catch (error) {
+        showError(error.message);
+        return false;
+      }
+    }
 
     // ============================================================================
     // SEARCH & FETCH
