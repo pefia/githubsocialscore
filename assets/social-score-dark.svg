@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="420" height="220" viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GitHub Social Score card">
+  <rect x="0.5" y="0.5" width="419" height="219" rx="16" fill="#0d1117" stroke="#30363d"/>
+  <text x="20" y="34" font-family="Arial, sans-serif" font-size="18" fill="#e6edf3" font-weight="700">GitHub Social Score</text>
+  <text x="20" y="54" font-family="Arial, sans-serif" font-size="12" fill="#8b949e">Run workflow to generate live data</text>
+</svg>
