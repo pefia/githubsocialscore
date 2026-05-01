@@ -15,7 +15,7 @@ If you don't want to copy any scripts/workflows, just link to the hosted app dir
 Use this markdown:
 
 ```md
-[![GitHub Social Score](https://img.shields.io/badge/GitHub-Social%20Score-1f6feb?style=for-the-badge&logo=github)](https://githubsocialscore.github.io/?user=<your-username>)
+[![GitHub Social Score](https://img.shields.io/badge/GitHub-Social%20Score-1f6feb?style=for-the-badge&logo=github)](https://pefia.github.io/?user=<your-username>)
 ```
 
 That's it — one link, zero extra files in your profile repo.
@@ -23,7 +23,7 @@ That's it — one link, zero extra files in your profile repo.
 You can also add a text link:
 
 ```md
-🔎 Check my live GitHub Social Score: https://githubsocialscore.github.io/?user=<your-username>
+🔎 Check my live GitHub Social Score: https://pefia.github.io/?user=<your-username>
 ```
 
 ## Why this project exists
