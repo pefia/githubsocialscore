@@ -6,15 +6,15 @@
 
   <rect x="20" y="72" width="190" height="166" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
   <text x="34" y="104" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Final Score</text>
-  <text x="34" y="152" font-family="Arial, sans-serif" font-size="48" fill="#bf8700" font-weight="700">40</text>
+  <text x="34" y="152" font-family="Arial, sans-serif" font-size="48" fill="#cf222e" font-weight="700">39</text>
   <text x="34" y="180" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Followers 1 · Stars 0</text>
   <text x="34" y="200" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Repos 10 · Languages 3</text>
 
   <rect x="222" y="72" width="238" height="166" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
   <text x="236" y="98" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Quality 0.0</text>
   <text x="350" y="98" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Influence 2.8</text>
-  <text x="236" y="122" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Activity 86.6</text>
-  <text x="350" y="122" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Consistency 45.3</text>
+  <text x="236" y="122" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Activity 86.3</text>
+  <text x="350" y="122" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Consistency 45.4</text>
   <text x="236" y="146" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Scale 28.8</text>
   <text x="350" y="146" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Diversity 42.5</text>
   <text x="236" y="170" font-family="Arial, sans-serif" font-size="12" fill="#57606a">Maintenance 99.3</text>
